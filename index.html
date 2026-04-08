@@ -1,0 +1,78 @@
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // 🔥 TU CONFIGURACIÓN DE FIREBASE AQUÍ
+    const firebaseConfig = {
+        apiKey: "TU_API_KEY",
+        authDomain: "TU_DOMINIO.firebaseapp.com",
+        projectId: "TU_PROJECT_ID",
+        storageBucket: "TU_BUCKET.appspot.com",
+        messagingSenderId: "TU_SENDER_ID",
+        appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const participantsRef = collection(db, "participants");
+
+    // Abrir/Cerrar modal
+    function openModal(){ document.getElementById('modal').style.display = 'flex'; }
+    function closeModal(){ document.getElementById('modal').style.display = 'none'; }
+
+    // Añadir participante a Firestore
+    async function addParticipant(){
+        const alias = document.getElementById('alias').value.trim();
+
+        if(alias === ''){
+            alert('Introduce un alias');
+            return;
+        }
+
+        await addDoc(participantsRef, { alias });
+
+        document.getElementById('alias').value = '';
+    }
+
+    // Escuchar cambios en tiempo real
+    onSnapshot(participantsRef, (snapshot) => {
+        const list = document.getElementById('participantsList');
+        list.innerHTML = "";
+
+        snapshot.forEach(doc => {
+            const li = document.createElement('li');
+            li.textContent = doc.data().alias;
+            list.appendChild(li);
+        });
+
+        document.getElementById('participantCount').textContent = snapshot.size;
+    });
+
+    // CONTADOR REGRESIVO
+    const targetDate = new Date("Jun 28, 2026 00:00:00").getTime();
+
+    setInterval(function() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("days").innerHTML = days.toString().padStart(2, '0');
+        document.getElementById("hours").innerHTML = hours.toString().padStart(2, '0');
+        document.getElementById("minutes").innerHTML = minutes.toString().padStart(2, '0');
+        document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, '0');
+
+        if (distance < 0) {
+            document.getElementById("countdown").innerHTML = "¡EL EVENTO HA COMENZADO!";
+        }
+    }, 1000);
+
+    // Hacer funciones accesibles al HTML
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.addParticipant = addParticipant;
+</script>
