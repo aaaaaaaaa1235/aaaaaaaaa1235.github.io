@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuenta Regresiva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #222222;
+            color: #e0e0e0;
+            font-family: 'Rajdhani', sans-serif;
+            background-image: radial-gradient(circle at center, #2a2a2a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .mystery-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 190px;
+            height: 190px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+            z-index: 10;
+        }
+
+        .join-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.8em;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-shadow: 0 0 20px rgba(255,255,255,0.6);
+            transition: 0.2s;
+        }
+
+        .join-btn:hover {
+            text-shadow: 0 0 30px rgba(255,255,255,1);
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .counter-box {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5em;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.6);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 16px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255,255,255,0.1);
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: none;
+            background: #2a2a2a;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .modal button {
+            margin-top: 12px;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Rajdhani', sans-serif;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .participants-list {
+            margin-top: 15px;
+            max-height: 120px;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .participants-list li {
+            margin: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #countdown {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .time-value {
+            font-size: 12em;
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
+            line-height: 1;
+            margin-bottom: -10px;
+        }
+
+        .time-label {
+            font-size: 1.8em;
+            color: #cccccc;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <img src="imagen.png" class="mystery-logo">
+
+    <div class="counter-box">
+        PARTICIPANTES: <span id="participantCount">0</span>
+    </div>
+
+    <button class="join-btn" onclick="openModal()">PARTICIPAR</button>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2>QUIERO PARTICIPAR</h2>
+
+            <input type="text" id="alias" placeholder="Alias">
+            <button onclick="addParticipant()">AÑADIR</button>
+
+            <ul class="participants-list" id="participantsList"></ul>
+
+            <button onclick="closeModal()">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="countdown">
+        <div class="time"><div class="time-value" id="days">00</div><div class="time-label">DÍAS</div></div>
+        <div class="time"><div class="time-value" id="hours">00</div><div class="time-label">HORAS</div></div>
+        <div class="time"><div class="time-value" id="minutes">00</div><div class="time-label">MINUTOS</div></div>
+        <div class="time"><div class="time-value" id="seconds">00</div><div class="time-label">SEGUNDOS</div></div>
+    </div>
+
+<!-- 🔥 FIREBASE REALTIME DATABASE -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVRw-8NP8dlPyA0z7FYmFygUOUSXId_Yg",
+        authDomain: "misteriosvalladolid.firebaseapp.com",
+        databaseURL: "https://misteriosvalladolid-default-rtdb.firebaseio.com",
+        projectId: "misteriosvalladolid",
+        storageBucket: "misteriosvalladolid.appspot.com",
+        messagingSenderId: "902068863605",
+        appId: "1:902068863605:web:cca0ece5385b115d216e3c",
+        measurementId: "G-H72KQE3JNW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const participantsRef = ref(db, "participants");
+
+    window.openModal = function () {
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    window.closeModal = function () {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    window.addParticipant = async function () {
+        const alias = document.getElementById('alias').value.trim();
+
+        if (alias === "") {
+            alert("Introduce un alias");
+            return;
+        }
+
+        push(participantsRef, { alias });
+
+        document.getElementById('alias').value = "";
+    }
+
+    onValue(participantsRef, (snapshot) => {
+        const list = document.getElementById("participantsList");
+        list.innerHTML = "";
+
+        let count = 0;
+
+        snapshot.forEach(child => {
+            const li = document.createElement("li");
+            li.textContent = child.val().alias;
+            list.appendChild(li);
+            count++;
+        });
+
+        document.getElementById("participantCount").textContent = count;
+    });
+
+    const targetDate = new Date("Jun 28, 2026 00:00:00").getTime();
+
+    setInterval(function () {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("days").innerHTML = days.toString().padStart(2, '0');
+        document.getElementById("hours").innerHTML = hours.toString().padStart(2, '0');
+        document.getElementById("minutes").innerHTML = minutes.toString().padStart(2, '0');
+        document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, '0');
+
+        if (distance < 0) {
+            document.getElementById("countdown").innerHTML = "¡EL EVENTO HA COMENZADO!";
+        }
+    }, 1000);
+</script>
+
+</body>
+</html>
+
