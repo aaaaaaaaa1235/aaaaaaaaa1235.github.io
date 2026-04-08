@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuenta Regresiva Misteriosa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a1a;
+            color: #e0d8ff;
+            font-family: 'Share Tech Mono', monospace;
+            background-image: radial-gradient(circle at 10% 20%, #4a0e4e 0%, #1a051d 50%, #0a0a1a 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .mystery-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 120px;
+            height: auto;
+            border: 2px solid #8a2be2;
+            border-radius: 5px;
+            box-shadow: 0 0 20px #8a2be2;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3em;
+            color: #d1bffe;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #8a2be2;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: #b794f6;
+        }
+
+        #countdown {
+            font-size: 1.5em;
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .time-container {
+            background-color: rgba(26, 5, 29, 0.5);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid #8a2be2;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .time-label {
+            font-size: 0.7em;
+            color: #d1bffe;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .time-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            color: #e0d8ff;
+            font-weight: bold;
+        }
+
+        .comments-section {
+            margin-top: 50px;
+            width: 80%;
+            max-width: 600px;
+            background-color: rgba(26, 5, 29, 0.3);
+            border: 1px solid #8a2be2;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+        }
+
+        .comments-title {
+            color: #d1bffe;
+            margin-top: 0;
+            font-family: 'Orbitron', sans-serif;
+            border-bottom: 1px solid #8a2be2;
+            padding-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            background-color: rgba(10, 10, 26, 0.7);
+            color: #e0d8ff;
+            border: 1px solid #8a2be2;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #8a2be2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #d1bffe;
+            color: #0a0a1a;
+        }
+
+        .comment {
+            background-color: rgba(26, 5, 29, 0.4);
+            border-left: 3px solid #8a2be2;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://via.placeholder.com/120x80/8a2be2/ffffff?text=Mystery" alt="Mystery Logo" class="mystery-logo">
+
+    <div class="container">
+        <h1>CUENTA REGRESIVA</h1>
+        <p class="subtitle">El evento misterioso comenzará en:</p>
+
+        <div id="countdown">
+            <div class="time-container">
+                <div class="time-value" id="days">00</div>
+                <div class="time-label">Días</div>
+            </div>
+            <div class="time-container">
+                <div class="time-value" id="hours">00</div>
+                <div class="time-label">Horas</div>
+            </div>
+            <div class="time-container">
+                <div class="time-value" id="minutes">00</div>
+                <div class="time-label">Minutos</div>
+            </div>
+            <div class="time-container">
+                <div class="time-value" id="seconds">00</div>
+                <div class="time-label">Segundos</div>
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h2 class="comments-title">Deja tu comentario</h2>
+            <textarea id="comment-text" placeholder="¿Qué crees que sucederá?"></textarea>
+            <button onclick="addComment()">Enviar Comentario</button>
+            <div id="comments-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // Fecha objetivo: 28 de junio de 2026
+        const targetDate = new Date("Jun 28, 2026 00:00:00").getTime();
+
+        // Actualiza la cuenta regresiva cada segundo
+        const countdown = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            // Calcula días, horas, minutos y segundos
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Muestra el resultado
+            document.getElementById("days").innerHTML = days;
+            document.getElementById("hours").innerHTML = hours;
+            document.getElementById("minutes").innerHTML = minutes;
+            document.getElementById("seconds").innerHTML = seconds;
+
+            // Si la cuenta regresiva termina
+            if (distance < 0) {
+                clearInterval(countdown);
+                document.getElementById("countdown").innerHTML = "<div class='time-value' style='font-size: 2em;'>¡EL EVENTO HA COMenZADO!</div>";
+            }
+        }, 1000);
+
+        // Función para agregar comentarios
+        function addComment() {
+            const commentText = document.getElementById("comment-text").value;
+            if (commentText.trim() === "") return;
+
+            const commentsList = document.getElementById("comments-list");
+            const newComment = document.createElement("div");
+            newComment.className = "comment";
+            newComment.innerHTML = `<strong>Anónimo:</strong> ${commentText}`;
+            commentsList.appendChild(newComment);
+
+            document.getElementById("comment-text").value = "";
+        }
+    </script>
+</body>
+</html>
