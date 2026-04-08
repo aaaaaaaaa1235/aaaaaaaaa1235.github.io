@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misterios Valladolid</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #222;
+            color: #e0e0e0;
+            font-family: 'Rajdhani', sans-serif;
+            background-image: radial-gradient(circle at center, #2a2a2a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Ocultar ambas vistas por defecto */
+        #pcView, #mobileView {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ---------------- PC ---------------- */
+        #pcView .mystery-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 190px;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.5));
+        }
+
+        #pcView .join-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 1.8em;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            text-shadow: 0 0 20px rgba(255,255,255,0.6);
+        }
+
+        #pcView .counter-box {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5em;
+        }
+
+        /* ---------------- MÓVIL ---------------- */
+        #mobileView .mystery-logo {
+            width: 120px;
+            margin-top: 20px;
+        }
+
+        #mobileView .join-btn {
+            margin-top: 20px;
+            font-size: 1.4em;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        #mobileView .counter-box {
+            margin-top: 10px;
+            font-size: 1.2em;
+        }
+
+        /* ---------------- MODAL ---------------- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 16px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255,255,255,0.1);
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: none;
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        .modal button {
+            margin-top: 12px;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* ---------------- COUNTDOWN ---------------- */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .time-value {
+            font-size: 6em;
+            text-shadow: 0 0 30px rgba(255,255,255,0.7);
+        }
+
+        .time-label {
+            font-size: 1.2em;
+            letter-spacing: 2px;
+        }
+
+        /* Móvil más pequeño */
+        #mobileView .time-value {
+            font-size: 3.5em;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ---------------- PC VIEW ---------------- -->
+<div id="pcView">
+    <img src="imagen.png" class="mystery-logo">
+
+    <div class="counter-box">
+        PARTICIPANTES: <span id="participantCountPC">0</span>
+    </div>
+
+    <button class="join-btn" onclick="openModal()">PARTICIPAR</button>
+
+    <div class="countdown">
+        <div><div class="time-value" id="daysPC">00</div><div class="time-label">DÍAS</div></div>
+        <div><div class="time-value" id="hoursPC">00</div><div class="time-label">HORAS</div></div>
+        <div><div class="time-value" id="minutesPC">00</div><div class="time-label">MINUTOS</div></div>
+        <div><div class="time-value" id="secondsPC">00</div><div class="time-label">SEGUNDOS</div></div>
+    </div>
+</div>
+
+<!-- ---------------- MOBILE VIEW ---------------- -->
+<div id="mobileView">
+    <img src="imagen.png" class="mystery-logo">
+
+    <div class="counter-box">
+        PARTICIPANTES: <span id="participantCountM">0</span>
+    </div>
+
+    <button class="join-btn" onclick="openModal()">PARTICIPAR</button>
+
+    <div class="countdown">
+        <div><div class="time-value" id="daysM">00</div><div class="time-label">DÍAS</div></div>
+        <div><div class="time-value" id="hoursM">00</div><div class="time-label">HORAS</div></div>
+        <div><div class="time-value" id="minutesM">00</div><div class="time-label">MINUTOS</div></div>
+        <div><div class="time-value" id="secondsM">00</div><div class="time-label">SEGUNDOS</div></div>
+    </div>
+</div>
+
+<!-- ---------------- MODAL ---------------- -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h2>QUIERO PARTICIPAR</h2>
+
+        <input type="text" id="alias" placeholder="Alias">
+        <button onclick="addParticipant()">AÑADIR</button>
+
+        <ul id="participantsList"></ul>
+
+        <button onclick="closeModal()">CERRAR</button>
+    </div>
+</div>
+
+<!-- ---------------- FIREBASE + LOGIC ---------------- -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVRw-8NP8dlPyA0z7FYmFygUOUSXId_Yg",
+        authDomain: "misteriosvalladolid.firebaseapp.com",
+        databaseURL: "https://misteriosvalladolid-default-rtdb.firebaseio.com",
+        projectId: "misteriosvalladolid",
+        storageBucket: "misteriosvalladolid.appspot.com",
+        messagingSenderId: "902068863605",
+        appId: "1:902068863605:web:cca0ece5385b115d216e3c",
+        measurementId: "G-H72KQE3JNW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const participantsRef = ref(db, "participants");
+
+    /* -------- DETECTAR DISPOSITIVO -------- */
+    function detectarDispositivo() {
+        const ua = navigator.userAgent.toLowerCase();
+        return /mobile|android|iphone|ipad|ipod/.test(ua) ? "movil" : "pc";
+    }
+
+    const dispositivo = detectarDispositivo();
+
+    if (dispositivo === "movil") {
+        document.getElementById("mobileView").style.display = "block";
+    } else {
+        document.getElementById("pcView").style.display = "block";
+    }
+
+    /* -------- MODAL -------- */
+    window.openModal = () => document.getElementById("modal").style.display = "flex";
+    window.closeModal = () => document.getElementById("modal").style.display = "none";
+
+    /* -------- AÑADIR PARTICIPANTE -------- */
+    window.addParticipant = function () {
+        const alias = document.getElementById("alias").value.trim();
+        if (alias === "") return alert("Introduce un alias");
+
+        push(participantsRef, { alias, dispositivo });
+        document.getElementById("alias").value = "";
+    };
+
+    /* -------- LISTA PARTICIPANTES -------- */
+    onValue(participantsRef, (snapshot) => {
+        const list = document.getElementById("participantsList");
+        list.innerHTML = "";
+
+        let count = 0;
+
+        snapshot.forEach(child => {
+            const li = document.createElement("li");
+            li.textContent = child.val().alias;
+            list.appendChild(li);
+            count++;
+        });
+
+        document.getElementById("participantCountPC").textContent = count;
+        document.getElementById("participantCountM").textContent = count;
+    });
+
+    /* -------- COUNTDOWN -------- */
+    const targetDate = new Date("Jun 28, 2026 00:00:00").getTime();
+
+    setInterval(() => {
+        const now = Date.now();
+        const distance = targetDate - now;
+
+        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+        const pad = n => n.toString().padStart(2, "0");
+
+        document.getElementById("daysPC").textContent = pad(d);
+        document.getElementById("hoursPC").textContent = pad(h);
+        document.getElementById("minutesPC").textContent = pad(m);
+        document.getElementById("secondsPC").textContent = pad(s);
+
+        document.getElementById("daysM").textContent = pad(d);
+        document.getElementById("hoursM").textContent = pad(h);
+        document.getElementById("minutesM").textContent = pad(m);
+        document.getElementById("secondsM").textContent = pad(s);
+    }, 1000);
+</script>
+
+</body>
+</html>
